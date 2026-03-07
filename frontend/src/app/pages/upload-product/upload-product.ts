@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { ProductService } from '../../services/product.service';
 
 @Component({
@@ -31,7 +32,7 @@ export class UploadProduct {
   productId: number | null = null;
   qrCodeUrl: string | null = null;
 
-  constructor(private productService: ProductService, private router: Router) { }
+  constructor(private productService: ProductService, private router: Router, private http: HttpClient) { }
 
   // helper to produce today's date in yyyy-MM-dd
   private getTodayString(): string {
@@ -58,12 +59,35 @@ export class UploadProduct {
       return;
     }
 
+    this.loading = true;
+
     navigator.geolocation.getCurrentPosition(position => {
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
-      this.gpsLocation = `${lat},${lng}`;
-      alert('GPS detected');
+
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+
+      this.http.get<any>(url).subscribe({
+        next: (data) => {
+          this.loading = false;
+          if (data && data.display_name) {
+            this.gpsLocation = data.display_name;
+            alert('Address detected successfully');
+          } else {
+            this.gpsLocation = `${lat}, ${lng}`;
+            alert('Could not fetch address, saved coordinates instead');
+          }
+        },
+        error: (err) => {
+          this.loading = false;
+          console.error('Reverse geocoding error:', err);
+          this.gpsLocation = `${lat}, ${lng}`;
+          alert('Error fetching address');
+        }
+      });
+
     }, (err) => {
+      this.loading = false;
       console.warn('GPS error', err);
       alert('Unable to detect GPS');
     });
