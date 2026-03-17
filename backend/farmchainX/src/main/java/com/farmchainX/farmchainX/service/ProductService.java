@@ -328,6 +328,17 @@ public class ProductService {
             }
         }
 
+        // Legacy tolerance: extract a numeric token from mixed strings (e.g., product_12).
+        Matcher numericToken = Pattern.compile("(\\d{1,12})").matcher(trimmed);
+        if (numericToken.find()) {
+            try {
+                Long productId = Long.parseLong(numericToken.group(1));
+                return productRepository.findById(productId);
+            } catch (NumberFormatException ignored) {
+                return Optional.empty();
+            }
+        }
+
         return Optional.empty();
     }
 
