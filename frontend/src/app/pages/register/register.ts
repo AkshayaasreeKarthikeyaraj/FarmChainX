@@ -93,10 +93,17 @@ export class RegisterComponent {
         error: (err) => {
           this.submitting = false;
           console.error('REGISTER ERROR →', err);
+          const message =
+            err?.status === 0
+              ? 'Cannot reach server (CORS/network). Check backend URL and FRONTEND_URL setting.'
+              : err?.error?.message ||
+                err?.error?.error ||
+                (typeof err?.error === 'string' ? err.error : null) ||
+                'Something went wrong';
           this.showNotification(
             'error',
             '❌ Registration Failed',
-            err?.error?.message || 'Something went wrong',
+            message,
           );
         },
       });
