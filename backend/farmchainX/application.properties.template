@@ -28,6 +28,9 @@ logging.level.com.farmchainx=DEBUG
 # CORS Configuration - Will be handled in Java config
 # cors.allowed.origins=${FRONTEND_URL:http://localhost:4200}
 
+# Public frontend URL used in generated QR links
+frontend.url=${FRONTEND_URL:http://192.168.1.6:4200}
+
 # JWT Configuration (if using)
 jwt.secret=${JWT_SECRET:your-secret-key-change-in-production}
 jwt.expiration=86400000

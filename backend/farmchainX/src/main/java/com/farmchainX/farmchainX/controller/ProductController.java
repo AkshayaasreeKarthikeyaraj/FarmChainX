@@ -374,10 +374,11 @@ public class ProductController {
         }
 
         String qrPath = productService.generateProductQr(id);
+        Product updatedProduct = productService.getProductById(id);
         return ResponseEntity.ok(Map.of(
                 "message", "QR Code generated successfully",
                 "qrPath", qrPath,
-                "verifyUrl", "https://yourdomain.com/verify/" + product.getPublicUuid()));
+            "verifyUrl", productService.buildVerifyUrl(updatedProduct.getPublicUuid())));
     }
 
     @GetMapping("/products/{id}/qrcode/image")

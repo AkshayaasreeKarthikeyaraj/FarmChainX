@@ -46,6 +46,25 @@ spring.datasource.password=your_password
    ```
    The API will be available at `http://localhost:8080`.
 
+### QR Link Configuration (Important)
+Generated QR codes embed the frontend verification URL. Configure it before starting the backend:
+
+```bash
+FRONTEND_URL=http://<your-frontend-host>:4200
+```
+
+Windows PowerShell example:
+
+```powershell
+$env:FRONTEND_URL="http://192.168.1.6:4200"
+./mvnw spring-boot:run
+```
+
+Guidelines:
+- Use LAN IP for same Wi-Fi phone testing.
+- Use your deployed frontend URL for access from different networks.
+- Regenerate QR codes whenever `FRONTEND_URL` changes.
+
 ## 📚 API Documentation
 
 Once the server is running, access the interactive API definition via Swagger UI:

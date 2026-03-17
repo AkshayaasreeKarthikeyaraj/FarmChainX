@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -28,6 +29,9 @@ import com.farmchainX.farmchainX.util.QrCodeGenerator;
 
 @Service
 public class ProductService {
+
+    @Value("${frontend.url:${FRONTEND_URL:http://localhost:4200}}")
+    private String frontendBaseUrl;
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
@@ -84,6 +88,21 @@ public class ProductService {
         return productRepository.filterProducts(cropName, endDate);
     }
 
+    private String resolveFrontendBaseUrl() {
+        String base = frontendBaseUrl;
+        if (base == null || base.isBlank()) {
+            base = "http://localhost:4200";
+        }
+        if (base.endsWith("/")) {
+            return base.substring(0, base.length() - 1);
+        }
+        return base;
+    }
+
+    public String buildVerifyUrl(String publicUuid) {
+        return resolveFrontendBaseUrl() + "/verify/" + publicUuid;
+    }
+
     public String generateProductQr(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
@@ -91,12 +110,7 @@ public class ProductService {
         productRepository.save(product);
         String publicUuid = product.getPublicUuid();
 
-        String frontendBase = System.getenv("FRONTEND_URL");
-        if (frontendBase == null || frontendBase.isBlank()) {
-            frontendBase = "http://localhost:4200";
-        }
-
-        String qrText = frontendBase + "/verify/" + publicUuid;
+        String qrText = buildVerifyUrl(publicUuid);
         try {
             Path qrDir = Path.of("uploads", "qrcodes");
             Files.createDirectories(qrDir);
@@ -218,11 +232,7 @@ public class ProductService {
         product.ensurePublicUuid();
         productRepository.save(product);
 
-        String frontendBase = System.getenv("FRONTEND_URL");
-        if (frontendBase == null || frontendBase.isBlank()) {
-            frontendBase = "http://localhost:4200";
-        }
-        String qrText = frontendBase + "/verify/" + product.getPublicUuid();
+        String qrText = buildVerifyUrl(product.getPublicUuid());
 
         int size = 300;
         java.util.Map<com.google.zxing.EncodeHintType, Object> hints = new java.util.HashMap<>();
