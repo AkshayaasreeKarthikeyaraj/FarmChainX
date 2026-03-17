@@ -182,6 +182,16 @@ public class ProductController {
                 aiPrediction.put("certificationEligibility", "Conventional");
             }
 
+            // Keep prediction output consistent with product quality computed at save time.
+            if (saved.getQualityGrade() != null && !saved.getQualityGrade().isBlank()) {
+                aiPrediction.put("qualityGrade", saved.getQualityGrade());
+            }
+            if (saved.getConfidenceScore() != null) {
+                int normalizedScore = (int) Math.round(saved.getConfidenceScore() * 100);
+                aiPrediction.put("qualityScore", normalizedScore);
+                aiPrediction.put("confidence", normalizedScore);
+            }
+
             // Save AI prediction to database (only if prediction was generated)
             if (!aiPrediction.isEmpty()) {
                 try {
@@ -194,7 +204,9 @@ public class ProductController {
                     prediction.setPredictionData(predictionJson);
 
                     // Extract and store key fields for easier querying
-                    if (aiPrediction.containsKey("qualityGrade")) {
+                    if (saved.getQualityGrade() != null && !saved.getQualityGrade().isBlank()) {
+                        prediction.setQualityGrade(saved.getQualityGrade());
+                    } else if (aiPrediction.containsKey("qualityGrade")) {
                         prediction.setQualityGrade(String.valueOf(aiPrediction.get("qualityGrade")));
                     }
                     if (aiPrediction.containsKey("qualityScore")) {
@@ -203,7 +215,9 @@ public class ProductController {
                             prediction.setQualityScore(((Number) score).intValue());
                         }
                     }
-                    if (aiPrediction.containsKey("confidence")) {
+                    if (saved.getConfidenceScore() != null) {
+                        prediction.setConfidence((int) Math.round(saved.getConfidenceScore() * 100));
+                    } else if (aiPrediction.containsKey("confidence")) {
                         Object conf = aiPrediction.get("confidence");
                         if (conf instanceof Number) {
                             prediction.setConfidence(((Number) conf).intValue());
