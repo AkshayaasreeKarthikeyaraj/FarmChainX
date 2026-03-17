@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 interface SystemSettings {
   applicationVersion: string;
@@ -25,6 +26,7 @@ interface SystemSettings {
   templateUrl: './admin-settings.html',
 })
 export class AdminSettings implements OnInit {
+  private apiBase = environment.apiUrl;
   settings: SystemSettings | null = null;
   isLoading = false;
   isSaving = false;
@@ -39,7 +41,7 @@ export class AdminSettings implements OnInit {
 
   loadSettings(): void {
     this.isLoading = true;
-    this.http.get<SystemSettings>('/api/admin/settings').subscribe({
+    this.http.get<SystemSettings>(`${this.apiBase}/admin/settings`).subscribe({
       next: (data) => {
         this.settings = data;
         this.isLoading = false;
@@ -57,7 +59,7 @@ export class AdminSettings implements OnInit {
     this.saveSuccess = false;
     this.saveError = '';
 
-    this.http.post<SystemSettings>('/api/admin/settings', this.settings).subscribe({
+    this.http.post<SystemSettings>(`${this.apiBase}/admin/settings`, this.settings).subscribe({
       next: (data) => {
         this.settings = data;
         this.isSaving = false;

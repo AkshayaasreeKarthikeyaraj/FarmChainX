@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../../environments/environment';
 
 type PrimaryRole = 'ADMIN' | 'FARMER' | 'DISTRIBUTOR' | 'RETAILER' | 'CONSUMER' | 'USER';
 
@@ -23,6 +24,7 @@ interface User {
   selector: 'app-admin-users',
 })
 export class AdminUsers implements OnInit {
+  private apiBase = environment.apiUrl;
   users: User[] = [];
   filteredUsers: User[] = [];
   searchTerm: string = '';
@@ -51,7 +53,7 @@ export class AdminUsers implements OnInit {
 
   loadUsers(): void {
     this.isLoading = true;
-    this.http.get<any[]>('/api/admin/users').subscribe({
+    this.http.get<any[]>(`${this.apiBase}/admin/users`).subscribe({
       next: (data) => {
         this.users = data.map((u) => {
           const roles = (u.roles ?? []).map((r: any) => this.normalizeRole(r));
@@ -110,7 +112,7 @@ export class AdminUsers implements OnInit {
 
     user.isPromoting = true; // Set promoting state to disable the button
 
-    this.http.post(`/api/admin/promote/${userId}`, {}).subscribe({
+    this.http.post(`${this.apiBase}/admin/promote/${userId}`, {}).subscribe({
       next: () => {
         alert(`${user.name} promoted to Admin successfully!`);
         this.loadUsers(); // Reload to refresh data for all users
