@@ -99,6 +99,13 @@ public class ProductService {
         if (base == null || base.isBlank()) {
             base = "http://localhost:4200";
         }
+        base = base.trim();
+
+        // Accept plain domains in env var and make them valid absolute URLs.
+        if (!base.startsWith("http://") && !base.startsWith("https://")) {
+            base = "https://" + base;
+        }
+
         if (base.endsWith("/")) {
             return base.substring(0, base.length() - 1);
         }
