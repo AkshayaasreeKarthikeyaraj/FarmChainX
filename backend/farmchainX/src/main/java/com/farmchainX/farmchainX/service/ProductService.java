@@ -11,6 +11,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +32,9 @@ import com.farmchainX.farmchainX.util.QrCodeGenerator;
 
 @Service
 public class ProductService {
+
+    private static final Pattern UUID_PATTERN = Pattern.compile(
+            "([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})");
 
     @Value("${frontend.url:${FRONTEND_URL:http://localhost:4200}}")
     private String frontendBaseUrl;
@@ -246,16 +252,16 @@ public class ProductService {
 
     @Transactional
     public Map<String, Object> getPublicViewByUuid(String publicUuid) {
-        Product product = productRepository.findByPublicUuid(publicUuid)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = resolveProductFromQrIdentifier(publicUuid)
+            .orElseThrow(() -> new RuntimeException("Product not found"));
         product.setScanCount(product.getScanCount() + 1);
         productRepository.save(product);
         return getPublicView(product.getId());
     }
 
     public SupplyChainLog addTrackingByUuid(String publicUuid, String notes, String location, String addedByUsername) {
-        Product product = productRepository.findByPublicUuid(publicUuid)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = resolveProductFromQrIdentifier(publicUuid)
+            .orElseThrow(() -> new RuntimeException("Product not found"));
         SupplyChainLog log = new SupplyChainLog();
         log.setProductId(product.getId());
         log.setNotes(notes);
@@ -265,6 +271,41 @@ public class ProductService {
         log.setToUserId(null);
         log.setCreatedBy(addedByUsername != null ? addedByUsername : "Anonymous User");
         return supplyChainLogRepository.save(log);
+    }
+
+    private Optional<Product> resolveProductFromQrIdentifier(String identifier) {
+        if (identifier == null || identifier.isBlank()) {
+            return Optional.empty();
+        }
+
+        String trimmed = identifier.trim();
+
+        // Primary path: exact UUID already passed by frontend/router.
+        Optional<Product> byUuid = productRepository.findByPublicUuid(trimmed);
+        if (byUuid.isPresent()) {
+            return byUuid;
+        }
+
+        // Tolerate identifiers that include UUID inside a larger string.
+        Matcher matcher = UUID_PATTERN.matcher(trimmed);
+        if (matcher.find()) {
+            byUuid = productRepository.findByPublicUuid(matcher.group(1).toLowerCase());
+            if (byUuid.isPresent()) {
+                return byUuid;
+            }
+        }
+
+        // Backward compatibility: some old QR payloads used numeric product IDs.
+        if (trimmed.matches("\\d+")) {
+            try {
+                Long productId = Long.parseLong(trimmed);
+                return productRepository.findById(productId);
+            } catch (NumberFormatException ignored) {
+                return Optional.empty();
+            }
+        }
+
+        return Optional.empty();
     }
 
     public Map<String, Object> getAuthorizedView(Long productId, Object userPrincipal) {

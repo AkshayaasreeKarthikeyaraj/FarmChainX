@@ -322,10 +322,14 @@ public class ProductController {
         // Convert to response format with product details
         List<Map<String, Object>> response = predictions.stream().map(prediction -> {
             Map<String, Object> predMap = new HashMap<>();
+            Product product = prediction.getProduct();
+            String effectiveGrade = product != null && product.getQualityGrade() != null
+                    ? product.getQualityGrade()
+                    : prediction.getQualityGrade();
             predMap.put("id", prediction.getId());
-            predMap.put("productId", prediction.getProduct().getId());
-            predMap.put("productName", prediction.getProduct().getCropName());
-            predMap.put("qualityGrade", prediction.getQualityGrade());
+            predMap.put("productId", product != null ? product.getId() : null);
+            predMap.put("productName", product != null ? product.getCropName() : null);
+            predMap.put("qualityGrade", effectiveGrade);
             predMap.put("qualityScore", prediction.getQualityScore());
             predMap.put("confidence", prediction.getConfidence());
             predMap.put("marketReadiness", prediction.getMarketReadiness());
