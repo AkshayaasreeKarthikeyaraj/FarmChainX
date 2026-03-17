@@ -84,15 +84,15 @@ export class QrScanner {
   // Navigate to product details
   viewDetails() {
     if (this.scanResult) {
-      // Improved matching: Checks for the UUID structure and handles both full URLs and just the UUID
-      const match = this.scanResult.match(
-        /verify\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i
-      );
+      // Accept UUID, legacy numeric IDs, and full URLs containing /verify/<identifier>
+      const verifyPathMatch = this.scanResult.match(/\/verify\/([^/?#]+)/i);
       const uuidMatch = this.scanResult.match(
         /([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i
       );
+      const numericMatch = this.scanResult.match(/\b(\d{1,12})\b/);
 
-      const idToNavigate = match ? match[1] : uuidMatch ? uuidMatch[1] : null;
+      const idToNavigate =
+        verifyPathMatch?.[1] || uuidMatch?.[1] || numericMatch?.[1] || null;
 
       if (idToNavigate) {
         // Use a relative path to ensure it works correctly

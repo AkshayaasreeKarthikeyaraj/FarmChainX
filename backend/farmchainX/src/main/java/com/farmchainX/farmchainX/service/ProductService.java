@@ -280,6 +280,22 @@ public class ProductService {
 
         String trimmed = identifier.trim();
 
+        // Decode URL-encoded payloads when scanner passes encoded values.
+        try {
+            trimmed = java.net.URLDecoder.decode(trimmed, StandardCharsets.UTF_8);
+        } catch (Exception ignored) {
+        }
+
+        // If full URL is present, prefer token after /verify/ and strip query/hash.
+        Matcher verifyPath = Pattern.compile("/verify/([^/?#]+)", Pattern.CASE_INSENSITIVE).matcher(trimmed);
+        if (verifyPath.find()) {
+            trimmed = verifyPath.group(1);
+        }
+        trimmed = trimmed.replaceAll("[?#].*$", "");
+        if (trimmed.endsWith("/")) {
+            trimmed = trimmed.substring(0, trimmed.length() - 1);
+        }
+
         // Primary path: exact UUID already passed by frontend/router.
         Optional<Product> byUuid = productRepository.findByPublicUuid(trimmed);
         if (byUuid.isPresent()) {
