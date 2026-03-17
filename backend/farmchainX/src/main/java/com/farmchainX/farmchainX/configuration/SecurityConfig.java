@@ -63,6 +63,9 @@ public class SecurityConfig {
                 "https://farmchainx-frontend.vercel.app"
                 ));
 
+        // Allow dynamic Vercel deployment domains (preview/production) for this project.
+        configuration.setAllowedOriginPatterns(List.of("https://*.vercel.app"));
+
         // Allow all HTTP methods
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));

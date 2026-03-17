@@ -22,6 +22,7 @@ public class CorsConfig {
                                 frontendUrl,
                                 "http://localhost:4200",
                                 "https://farmchainx-frontend.vercel.app")
+                    .allowedOriginPatterns("https://*.vercel.app")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowedHeaders("*")
                         .exposedHeaders("Authorization", "Content-Type", "Content-Disposition")
