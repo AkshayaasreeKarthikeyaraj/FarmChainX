@@ -1,6 +1,6 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://farmchainx-backend.onrender.com/api',
+    apiUrl: 'https://farmchainx-production.up.railway.app/api',
 
 
     enableDebugMode: false,
