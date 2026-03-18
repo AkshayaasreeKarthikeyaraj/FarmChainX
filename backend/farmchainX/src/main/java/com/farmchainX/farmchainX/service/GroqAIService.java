@@ -2,6 +2,7 @@ package com.farmchainX.farmchainX.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,68 @@ public class GroqAIService {
     public GroqAIService() {
         this.restTemplate = new RestTemplate();
         this.objectMapper = new ObjectMapper();
+    }
+
+    public boolean isAgriculturalProduct(byte[] imageBytes) {
+        try {
+            if (imageBytes == null || imageBytes.length == 0) {
+                return false;
+            }
+
+            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(apiKey);
+
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("model", "meta-llama/llama-4-scout-17b-16e-instruct");
+            requestBody.put("max_tokens", 50);
+
+            List<Map<String, Object>> messages = new ArrayList<>();
+            Map<String, Object> userMessage = new HashMap<>();
+            userMessage.put("role", "user");
+
+            List<Map<String, Object>> contentList = new ArrayList<>();
+
+            Map<String, Object> textPart = new HashMap<>();
+            textPart.put("type", "text");
+            textPart.put("text",
+                    "Does this image contain an agricultural product such as crops, vegetables, fruits, grains, or farm produce? Answer only YES or NO.");
+            contentList.add(textPart);
+
+            Map<String, Object> imagePart = new HashMap<>();
+            imagePart.put("type", "image_url");
+            Map<String, String> imageUrl = new HashMap<>();
+            imageUrl.put("url", "data:image/jpeg;base64," + base64Image);
+            imagePart.put("image_url", imageUrl);
+            contentList.add(imagePart);
+
+            userMessage.put("content", contentList);
+            messages.add(userMessage);
+            requestBody.put("messages", messages);
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+            ResponseEntity<Map> response = restTemplate.postForEntity(GROQ_API_URL, request, Map.class);
+
+            if (response.getBody() == null) {
+                return true;
+            }
+
+            List<Map<String, Object>> choices = (List<Map<String, Object>>) response.getBody().get("choices");
+            if (choices == null || choices.isEmpty()) {
+                return true;
+            }
+
+            Map<String, Object> msg = (Map<String, Object>) choices.get(0).get("message");
+            String content = String.valueOf(msg.get("content")).trim().toUpperCase();
+            System.out.println("[GroqAI Vision] Image validation result: " + content);
+            return content.startsWith("YES");
+        } catch (Exception e) {
+            System.err.println("[GroqAI Vision Error] " + e.getMessage());
+            // Fail-open so uploads still work if the vision model/API is unavailable.
+            return true;
+        }
     }
 
     public Map<String, Object> generateFarmPrediction(Product product) {

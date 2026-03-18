@@ -95,6 +95,13 @@ public class ProductController {
             if (imageFile == null || imageFile.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Image is required"));
             }
+            if (groqAIService != null) {
+                boolean isFarmProduct = groqAIService.isAgriculturalProduct(imageFile.getBytes());
+                if (!isFarmProduct) {
+                    return ResponseEntity.badRequest().body(Map.of("error",
+                            "Image does not appear to contain an agricultural product. Please upload a real crop, vegetable, fruit or farm produce image."));
+                }
+            }
 
             String email = principal.getName();
             User farmer = userRepository.findByEmail(email)
