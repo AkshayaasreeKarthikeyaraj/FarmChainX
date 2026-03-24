@@ -330,7 +330,8 @@ export class AdminAnalytics implements OnInit {
 
   getCompletionRate(): number {
     if (this.productCreated === 0) return 0;
-    return Math.round((this.transferConfirmed / this.productCreated) * 100);
+    const rate = Math.round((this.transferConfirmed / this.productCreated) * 100);
+    return Math.min(rate, 100); // Cap at 100%
   }
 
   getBarWidth(value: number, max: number): string {
