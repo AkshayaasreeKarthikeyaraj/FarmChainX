@@ -151,6 +151,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/admin/admin-settings/admin-settings').then((m) => m.AdminSettings),
       },
+      {
+        path: 'analytics',
+        loadComponent: () =>
+          import('./pages/admin/admin-analytics/admin-analytics').then((m) => m.AdminAnalytics),
+      },
       { path: '', redirectTo: 'overview', pathMatch: 'full' },
     ],
   },
