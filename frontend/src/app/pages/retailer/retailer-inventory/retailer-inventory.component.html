@@ -58,6 +58,23 @@
       <p class="text-xs text-center mb-4" style="color: rgba(255, 255, 255, 0.3)">
         Scan to verify authenticity.
       </p>
+      <div class="flex gap-2 mb-4">
+        <button
+          (click)="window.open(qrUrl, '_blank')"
+          class="w-1/2 py-2.5 rounded-xl text-xs font-black transition-all"
+          style="background: linear-gradient(135deg, #22c55e, #15803d); color: white;"
+        >
+          View
+        </button>
+        <a
+          [href]="qrUrl"
+          download="qr-code.png"
+          class="w-1/2 py-2.5 rounded-xl text-xs font-black transition-all text-center"
+          style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(74, 222, 128, 0.2); color: rgba(255, 255, 255, 0.8); display: inline-block;"
+        >
+          Save
+        </a>
+      </div>
       <button
         (click)="closeQr()"
         class="w-full py-2.5 rounded-xl text-xs font-black transition-all"
