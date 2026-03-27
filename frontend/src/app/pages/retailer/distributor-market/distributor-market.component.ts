@@ -51,6 +51,7 @@ export class DistributorMarketComponent implements OnInit {
 
             const payload = {
                 supplierId: item.distributorId,
+                productId: item.productId, // Send product ID
                 quantity: item.quantity,
                 total: item.quantity * item.pricePerUnit
             };

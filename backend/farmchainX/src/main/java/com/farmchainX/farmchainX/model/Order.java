@@ -19,6 +19,8 @@ public class Order {
     @Column(nullable = false)
     private Long retailerId;
 
+    private Long productId; // Link to the product being ordered
+
     private int items; // Number of items
 
     private double totalAmount;

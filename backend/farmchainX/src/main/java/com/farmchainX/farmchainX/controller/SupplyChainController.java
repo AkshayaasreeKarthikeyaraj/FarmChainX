@@ -24,6 +24,7 @@ import com.farmchainX.farmchainX.repository.DispatchOfferRepository;
 import com.farmchainX.farmchainX.model.Product;
 import com.farmchainX.farmchainX.repository.ProductRepository;
 import com.farmchainX.farmchainX.repository.RetailerInventoryRepository;
+import com.farmchainX.farmchainX.repository.OrderRepository;
 
 @RestController
 @RequestMapping("/api/track")
@@ -36,6 +37,7 @@ public class SupplyChainController {
         private final DispatchOfferRepository dispatchOfferRepository;
         private final ProductRepository productRepository;
         private final RetailerInventoryRepository retailerInventoryRepository;
+        private final OrderRepository orderRepository;
 
         public SupplyChainController(
                         SupplyChainService supplyChainService,
@@ -44,7 +46,8 @@ public class SupplyChainController {
                         ProductService productService,
                         DispatchOfferRepository dispatchOfferRepository,
                         ProductRepository productRepository,
-                        RetailerInventoryRepository retailerInventoryRepository) {
+                        RetailerInventoryRepository retailerInventoryRepository,
+                        OrderRepository orderRepository) {
                 this.supplyChainService = supplyChainService;
                 this.userRepository = userRepository;
                 this.supplyChainLogRepository = supplyChainLogRepository;
@@ -52,6 +55,7 @@ public class SupplyChainController {
                 this.dispatchOfferRepository = dispatchOfferRepository;
                 this.productRepository = productRepository;
                 this.retailerInventoryRepository = retailerInventoryRepository;
+                this.orderRepository = orderRepository;
         }
 
         @PostMapping("/update-chain")
@@ -692,8 +696,16 @@ public class SupplyChainController {
                                                 .findFirstByProductIdOrderByTimestampDesc(log.getProductId())
                                                 .orElse(null);
 
+                                // Check if product has been ordered
+                                boolean hasBeenOrdered = orderRepository
+                                        .findAll().stream()
+                                        .anyMatch(o -> log.getProductId().equals(o.getProductId()) &&
+                                                      o.getStatus() != null && 
+                                                      !o.getStatus().equals("Cancelled"));
+
                                 if (globalLatest != null && globalLatest.getToUserId() != null
-                                                && globalLatest.getToUserId().equals(distributor.getId())) {
+                                                && globalLatest.getToUserId().equals(distributor.getId())
+                                                && !hasBeenOrdered) { // Exclude ordered products
 
                                         // Valid item in distributor inventory
                                         Map<String, Object> item = new java.util.HashMap<>();

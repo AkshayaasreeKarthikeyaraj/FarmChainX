@@ -492,6 +492,7 @@ public class RetailerController {
             User user = userRepository.findByEmail(principal.getName()).orElseThrow(() -> new RuntimeException("User not found"));
 
             Long supplierId = Long.valueOf(String.valueOf(payload.get("supplierId")));
+            Long productId = payload.get("productId") != null ? Long.valueOf(String.valueOf(payload.get("productId"))) : null;
             int items = Integer.parseInt(String.valueOf(payload.get("quantity")));
             double total = Double.parseDouble(String.valueOf(payload.get("total")));
 
@@ -502,6 +503,7 @@ public class RetailerController {
             Order order = new Order();
             order.setRetailerId(user.getId());
             order.setSupplierId(supplierId);
+            order.setProductId(productId); // Link to the product
             order.setItems(items);
             order.setTotalAmount(total);
             order.setStatus("Processing");
