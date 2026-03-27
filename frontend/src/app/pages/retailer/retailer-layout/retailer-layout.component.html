@@ -61,15 +61,6 @@
           <span class="text-base">📦</span><span>Inventory</span>
         </a>
         <a
-          routerLink="/retailer/dispatched-products"
-          routerLinkActive="active-nav"
-          [routerLinkActiveOptions]="{ exact: true }"
-          class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 font-semibold text-sm"
-          style="color: rgba(255, 255, 255, 0.55)"
-        >
-          <span class="text-base">🚚</span><span>Dispatched Products</span>
-        </a>
-        <a
           routerLink="/retailer/orders"
           routerLinkActive="active-nav"
           [routerLinkActiveOptions]="{ exact: true }"
@@ -87,7 +78,7 @@
         >
           <span class="text-base">🚛</span><span>Shipments</span>
         </a>
-        <a
+        <!--<a
           routerLink="/retailer/market"
           routerLinkActive="active-nav"
           [routerLinkActiveOptions]="{ exact: true }"
@@ -95,7 +86,7 @@
           style="color: rgba(255, 255, 255, 0.55)"
         >
           <span class="text-base">🛒</span><span>Distributor Market</span>
-        </a>
+        </a>-->
       </nav>
     </div>
 
@@ -201,13 +192,6 @@
           class="block px-3 py-2 rounded-xl text-xs font-bold"
           style="color: rgba(255, 255, 255, 0.6)"
           >📦 Inventory</a
-        >
-        <a
-          routerLink="/retailer/dispatched-products"
-          (click)="toggleMobile()"
-          class="block px-3 py-2 rounded-xl text-xs font-bold"
-          style="color: rgba(255, 255, 255, 0.6)"
-          >🚚 Dispatched</a
         >
         <a
           routerLink="/retailer/orders"

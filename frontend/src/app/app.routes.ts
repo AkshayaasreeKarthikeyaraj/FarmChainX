@@ -260,13 +260,6 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'dispatched-products',
-        loadComponent: () =>
-          import('./pages/retailer/retailer-dispatched-products/retailer-dispatched-products.component').then(
-            (m) => m.RetailerDispatchedProductsComponent,
-          ),
-      },
-      {
         path: 'orders',
         loadComponent: () =>
           import('./pages/retailer/retailer-orders/retailer-orders.component').then(
