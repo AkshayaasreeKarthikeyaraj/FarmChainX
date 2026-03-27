@@ -212,3 +212,100 @@
     </div>
   </div>
 </div>
+
+<!-- Order Details Modal -->
+<div
+  *ngIf="showDetailsModal && selectedOrder"
+  class="fixed inset-0 z-50 flex items-center justify-center"
+  style="background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px)"
+  (click)="closeDetailsModal()"
+>
+  <div
+    class="rounded-2xl p-6 max-w-2xl w-full mx-4"
+    style="background: rgba(3, 18, 8, 0.98); border: 1px solid rgba(74, 222, 128, 0.3)"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h2 class="text-xl font-black text-white">{{ selectedOrder.id }}</h2>
+        <p class="text-xs mt-1" style="color: rgba(255, 255, 255, 0.4)">Purchase Order Details</p>
+      </div>
+      <button (click)="closeDetailsModal()" class="text-2xl" style="color: rgba(255, 255, 255, 0.4)">
+        &times;
+      </button>
+    </div>
+
+    <!-- Details Grid -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+      <!-- Supplier -->
+      <div class="rounded-xl p-4" style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(74, 222, 128, 0.2)">
+        <p class="text-xs font-bold mb-1" style="color: rgba(255, 255, 255, 0.4)">Supplier</p>
+        <p class="text-sm font-black text-white">{{ selectedOrder.supplier }}</p>
+      </div>
+
+      <!-- Order Date -->
+      <div class="rounded-xl p-4" style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(74, 222, 128, 0.2)">
+        <p class="text-xs font-bold mb-1" style="color: rgba(255, 255, 255, 0.4)">Order Date</p>
+        <p class="text-sm font-black text-white">{{ selectedOrder.createdAt | date: 'mediumDate' }}</p>
+      </div>
+
+      <!-- Quantity -->
+      <div class="rounded-xl p-4" style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(74, 222, 128, 0.2)">
+        <p class="text-xs font-bold mb-1" style="color: rgba(255, 255, 255, 0.4)">Quantity (Items)</p>
+        <p class="text-sm font-black text-white">{{ selectedOrder.items }} units</p>
+      </div>
+
+      <!-- Total Amount -->
+      <div class="rounded-xl p-4" style="background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(74, 222, 128, 0.2)">
+        <p class="text-xs font-bold mb-1" style="color: rgba(255, 255, 255, 0.4)">Total Amount</p>
+        <p class="text-sm font-black" style="color: #4ade80">₹{{ selectedOrder.total }}</p>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div class="mb-6">
+      <p class="text-xs font-bold mb-2" style="color: rgba(255, 255, 255, 0.4)">Order Status</p>
+      <span
+        class="inline-block px-3 py-1.5 rounded-full text-xs font-black"
+        [ngClass]="statusClass(selectedOrder.status)"
+      >
+        {{ selectedOrder.status }}
+      </span>
+      
+      <!-- Status Timeline -->
+      <div class="mt-4 flex gap-2">
+        <div 
+          class="flex-1 py-2 px-3 rounded-lg text-xs text-center font-bold"
+          [style]="selectedOrder.status === 'Processing' || selectedOrder.status === 'Shipped' || selectedOrder.status === 'Delivered' ? 'background: rgba(34, 197, 94, 0.2); color: #4ade80' : 'background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.4)'"
+        >
+          📝 Processing
+        </div>
+        <div 
+          class="flex-1 py-2 px-3 rounded-lg text-xs text-center font-bold"
+          [style]="selectedOrder.status === 'Shipped' || selectedOrder.status === 'Delivered' ? 'background: rgba(34, 197, 94, 0.2); color: #4ade80' : 'background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.4)'"
+        >
+          🚚 Shipped
+        </div>
+        <div 
+          class="flex-1 py-2 px-3 rounded-lg text-xs text-center font-bold"
+          [style]="selectedOrder.status === 'Delivered' ? 'background: rgba(34, 197, 94, 0.2); color: #4ade80' : 'background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.4)'"
+        >
+          ✅ Delivered
+        </div>
+      </div>
+    </div>
+
+    <!-- Close Button -->
+    <div class="flex justify-end">
+      <button
+        (click)="closeDetailsModal()"
+        class="px-5 py-2 rounded-xl text-xs font-black text-white transition-all"
+        style="background: linear-gradient(135deg, #22c55e, #15803d)"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+

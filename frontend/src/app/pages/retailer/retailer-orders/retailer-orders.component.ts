@@ -22,6 +22,8 @@ import { FormsModule } from '@angular/forms';
 export class RetailerOrdersComponent {
   orders: Order[] = [];
   showModal = false;
+  showDetailsModal = false;
+  selectedOrder: Order | null = null;
   newOrder: any = {
     supplierId: '',
     items: '',
@@ -62,8 +64,13 @@ export class RetailerOrdersComponent {
   }
 
   view(o: Order) {
-    // open details modal or navigate to PO detail view (future)
-    alert(`Open PO: ${o.id}`);
+    this.selectedOrder = o;
+    this.showDetailsModal = true;
+  }
+
+  closeDetailsModal() {
+    this.showDetailsModal = false;
+    this.selectedOrder = null;
   }
 
   openCreateModal() {
