@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/api/retailer")
-@PreAuthorize("hasRole('RETAILER')")
 public class RetailerController {
 
     private final UserRepository userRepository;
@@ -485,7 +484,22 @@ public class RetailerController {
     @PostMapping("/orders/create")
     public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> payload, Principal principal) {
         try {
+            if (principal == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "User not authenticated"));
+            }
+
             User user = userRepository.findByEmail(principal.getName()).orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Verify user has RETAILER role
+            boolean hasRetailerRole = user.getRoles()
+                .stream()
+                .anyMatch(r -> "ROLE_RETAILER".equals(r.getName()));
+            
+            if (!hasRetailerRole) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "User must have RETAILER role to place orders"));
+            }
 
             Long supplierId = Long.valueOf(String.valueOf(payload.get("supplierId")));
             int items = Integer.parseInt(String.valueOf(payload.get("quantity")));
