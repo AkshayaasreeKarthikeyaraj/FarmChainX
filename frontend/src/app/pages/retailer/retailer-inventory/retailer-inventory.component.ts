@@ -58,7 +58,8 @@ export class RetailerInventoryComponent {
       this.http.post(`${environment.apiUrl}/retailer/sell`, { productId: item.productId }).subscribe({
         next: () => {
           alert(`✅ Sold 1 unit of ${item.name}. Inventory updated.`);
-          this.fetchInventory(); // Refresh list to remove item
+          // Remove the sold item from the inventory list immediately
+          this.items = this.items.filter(i => i.productId !== item.productId);
         },
         error: (err) => {
           alert('Error processing sale: ' + (err.error?.message || "Unknown error"));

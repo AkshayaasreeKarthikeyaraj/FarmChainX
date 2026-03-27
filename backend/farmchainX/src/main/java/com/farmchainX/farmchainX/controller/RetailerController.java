@@ -484,23 +484,30 @@ public class RetailerController {
 
     @PostMapping("/orders/create")
     public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> payload, Principal principal) {
-        User user = userRepository.findByEmail(principal.getName()).orElseThrow();
+        try {
+            User user = userRepository.findByEmail(principal.getName()).orElseThrow(() -> new RuntimeException("User not found"));
 
-        Long supplierId = Long.valueOf(String.valueOf(payload.get("supplierId")));
-        // We might want productId too if we link it specifically, but Order model just
-        // summarizes items
-        int items = Integer.parseInt(String.valueOf(payload.get("quantity")));
-        double total = Double.parseDouble(String.valueOf(payload.get("total")));
+            Long supplierId = Long.valueOf(String.valueOf(payload.get("supplierId")));
+            int items = Integer.parseInt(String.valueOf(payload.get("quantity")));
+            double total = Double.parseDouble(String.valueOf(payload.get("total")));
 
-        Order order = new Order();
-        order.setRetailerId(user.getId());
-        order.setSupplierId(supplierId);
-        order.setItems(items);
-        order.setTotalAmount(total);
-        order.setStatus("Processing");
+            // Validate supplier exists
+            User supplier = userRepository.findById(supplierId)
+                .orElseThrow(() -> new RuntimeException("Supplier not found"));
 
-        orderRepository.save(order);
+            Order order = new Order();
+            order.setRetailerId(user.getId());
+            order.setSupplierId(supplierId);
+            order.setItems(items);
+            order.setTotalAmount(total);
+            order.setStatus("Processing");
 
-        return ResponseEntity.ok(Map.of("message", "Order created successfully", "orderId", order.getId()));
+            Order savedOrder = orderRepository.save(order);
+
+            return ResponseEntity.ok(Map.of("message", "Order created successfully", "orderId", savedOrder.getId()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 }

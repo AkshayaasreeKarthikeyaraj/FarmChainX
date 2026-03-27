@@ -64,7 +64,8 @@ export class DistributorMarketComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Order failed', err);
-                    alert('Failed to place order.');
+                    const errorMessage = err?.error?.error || err?.error?.message || 'Failed to place order. Please try again.';
+                    alert(`❌ ${errorMessage}`);
                     this.purchasingId = null;
                 }
             });
