@@ -4,7 +4,6 @@ import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 
 type Mode = 'update' | 'handover' | null;
@@ -12,7 +11,7 @@ type Mode = 'update' | 'handover' | null;
 @Component({
   selector: 'app-verify-product',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './verify-product.html',
   styleUrls: ['./verify-product.scss']
 })

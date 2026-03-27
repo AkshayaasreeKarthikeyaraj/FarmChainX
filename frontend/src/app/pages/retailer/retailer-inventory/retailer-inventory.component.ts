@@ -22,6 +22,7 @@ interface InventoryItem {
   templateUrl: './retailer-inventory.component.html',
 })
 export class RetailerInventoryComponent {
+  window = window;
   lowThreshold = 20;
   items: InventoryItem[] = [];
   activeQrItem: InventoryItem | null = null;
