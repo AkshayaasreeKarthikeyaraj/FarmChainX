@@ -59,7 +59,8 @@ export class DistributorMarketComponent implements OnInit {
                 next: (res: any) => {
                     alert(`✅ Order Placed Successfully!\n\nOrder ID: PO-${res.orderId}\nSupplier: ${item.distributor}`);
                     this.purchasingId = null;
-                    this.fetchMarket();
+                    // Remove the purchased item from the market list
+                    this.marketItems = this.marketItems.filter(mi => mi.id !== item.id);
                 },
                 error: (err) => {
                     console.error('Order failed', err);
