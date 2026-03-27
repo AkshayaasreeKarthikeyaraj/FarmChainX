@@ -35,8 +35,14 @@ export class DistributorMarketComponent implements OnInit {
         });
     }
 
-    getQrUrl(productId: number): string {
-        return `/api/products/${productId}/qrcode/image`;
+    /** Returns the inline image URL for displaying the QR thumbnail */
+    getQrImageUrl(productId: number): string {
+        return `${environment.apiUrl}/products/${productId}/qrcode/image`;
+    }
+
+    /** Returns the download URL for saving the QR as a PNG file */
+    getQrDownloadUrl(productId: number): string {
+        return `${environment.apiUrl}/products/${productId}/qrcode/download`;
     }
 
     placeOrder(item: any) {
@@ -53,7 +59,6 @@ export class DistributorMarketComponent implements OnInit {
                 next: (res: any) => {
                     alert(`✅ Order Placed Successfully!\n\nOrder ID: PO-${res.orderId}\nSupplier: ${item.distributor}`);
                     this.purchasingId = null;
-                    // Refresh market to reflect changes if necessary
                     this.fetchMarket();
                 },
                 error: (err) => {
