@@ -491,16 +491,6 @@ public class RetailerController {
 
             User user = userRepository.findByEmail(principal.getName()).orElseThrow(() -> new RuntimeException("User not found"));
 
-            // Verify user has RETAILER role
-            boolean hasRetailerRole = user.getRoles()
-                .stream()
-                .anyMatch(r -> "ROLE_RETAILER".equals(r.getName()));
-            
-            if (!hasRetailerRole) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "User must have RETAILER role to place orders"));
-            }
-
             Long supplierId = Long.valueOf(String.valueOf(payload.get("supplierId")));
             int items = Integer.parseInt(String.valueOf(payload.get("quantity")));
             double total = Double.parseDouble(String.valueOf(payload.get("total")));
