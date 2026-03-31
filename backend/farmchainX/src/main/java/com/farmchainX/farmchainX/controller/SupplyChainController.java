@@ -338,8 +338,10 @@ public class SupplyChainController {
                                         if (p != null) {
                                                 item.put("cropName", p.getCropName());
                                                 item.put("qualityGrade", p.getQualityGrade());
-                                                // Use actual quantity transferred from supply chain log
-                                                Double actualQuantity = log.getQuantityTransferred() != null ? log.getQuantityTransferred() : 0.0;
+                                                // Use actual quantity transferred from supply chain log, fallback to 100kg if not set
+                                                Double actualQuantity = log.getQuantityTransferred() != null && log.getQuantityTransferred() > 0 
+                                                        ? log.getQuantityTransferred() 
+                                                        : 100.0;  // Default: 100kg
                                                 item.put("quantity", actualQuantity);
                                                 item.put("unit", "kg");
                                                 item.put("status", "In Stock");

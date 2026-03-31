@@ -213,6 +213,13 @@
             </span>
             <span
               class="text-xs flex items-center gap-1"
+              [class.text-green-400]="passwordValid.specialChar"
+              [class.text-gray-600]="!passwordValid.specialChar"
+            >
+              {{ passwordValid.specialChar ? '✓' : '○' }} Special character
+            </span>
+            <span
+              class="text-xs flex items-center gap-1 col-span-2"
               [class.text-green-400]="passwordsMatch && confirmPassword.length > 0"
               [class.text-gray-600]="!passwordsMatch"
             >
