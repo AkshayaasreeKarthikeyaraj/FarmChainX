@@ -668,16 +668,19 @@ public class SupplyChainController {
         }
 
         @GetMapping("/market/distributors")
+        @PreAuthorize("hasAnyRole('RETAILER', 'CONSUMER')")
         public List<Map<String, Object>> getDistributorMarket() {
-                // Fetch all users with ROLE_DISTRIBUTOR
-                List<User> distributors = userRepository.findAll().stream()
-                                .filter(u -> u.getRoles().stream()
-                                                .anyMatch(r -> "ROLE_DISTRIBUTOR".equals(r.getName())))
-                                .collect(java.util.stream.Collectors.toList());
+                // Fetch distributors with optimized query
+                List<User> distributors = userRepository.findByRoles_Name("ROLE_DISTRIBUTOR");
 
                 List<Map<String, Object>> marketItems = new java.util.ArrayList<>();
 
                 for (User distributor : distributors) {
+                        // Skip inactive distributors
+                        if (distributor.getStatus() != null && "INACTIVE".equals(distributor.getStatus())) {
+                                continue;
+                        }
+
                         // For each distributor, fetch their current inventory
                         List<SupplyChainLog> logs = supplyChainLogRepository
                                         .findByToUserIdOrderByTimestampDesc(distributor.getId());
@@ -696,12 +699,9 @@ public class SupplyChainController {
                                                 .findFirstByProductIdOrderByTimestampDesc(log.getProductId())
                                                 .orElse(null);
 
-                                // Check if product has been ordered
+                                // Check if product has been ordered - use optimized query
                                 boolean hasBeenOrdered = orderRepository
-                                        .findAll().stream()
-                                        .anyMatch(o -> log.getProductId().equals(o.getProductId()) &&
-                                                      o.getStatus() != null && 
-                                                      !o.getStatus().equals("Cancelled"));
+                                        .existsByProductIdAndStatusNotEqual(log.getProductId(), "Cancelled");
 
                                 if (globalLatest != null && globalLatest.getToUserId() != null
                                                 && globalLatest.getToUserId().equals(distributor.getId())
@@ -709,15 +709,13 @@ public class SupplyChainController {
 
                                         // Valid item in distributor inventory
                                         Map<String, Object> item = new java.util.HashMap<>();
-                                        item.put("id", log.getId()); // Use Log ID as item ID just for reference, or
-                                                                     // mocked unique listing ID
+                                        item.put("id", log.getId());
                                         item.put("distributorId", distributor.getId());
                                         item.put("distributor", distributor.getName());
                                         item.put("location", "Retail Hub");
                                         item.put("verified", true);
 
                                         // Product Details
-                                        // Let's wrap in try-catch or assume safe if we trust data integrity
                                         try {
                                                 com.farmchainX.farmchainX.model.Product p = productService
                                                                 .getProductById(log.getProductId());
